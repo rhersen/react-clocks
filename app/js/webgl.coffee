@@ -1,61 +1,41 @@
 window.WebGl = React.createClass
     render: ->
-        return React.DOM.canvas({}) unless @program
+        if @program
+            @gl.useProgram @program
 
-        @gl.useProgram @program
+            @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
+            loc = @gl.getAttribLocation @program, 'vertex'
+            @gl.vertexAttribPointer loc, 3, @gl.FLOAT, false, 0, 0
+            @gl.enableVertexAttribArray loc
 
-        @uniform 'p', makePerspective 45, @screenWidth / @screenHeight, 0.1, 10
+            tetra.vertices[0] = Math.cos(Math.PI * (Date.now() % 12000) / 6000);
+            tetra.vertices[1] = Math.sin(Math.PI * (Date.now() % 12000) / 6000);
+            @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
+            @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(tetra.vertices), @gl.STATIC_DRAW
 
-        m = mvRotate Math.PI * (Date.now() % 12000) / 6000
-        @uniform 'm', m
-
-        @uniform 'n', transpose invert m
-
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
-        loc = @gl.getAttribLocation @program, 'vertex'
-        @gl.vertexAttribPointer loc, 3, @gl.FLOAT, false, 0, 0
-        @gl.enableVertexAttribArray loc
-
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @normal
-        loc = @gl.getAttribLocation @program, 'normal'
-        @gl.vertexAttribPointer loc, 3, @gl.FLOAT, false, 0, 0
-        @gl.enableVertexAttribArray loc
-
-        @gl.drawElements @gl.TRIANGLES, @vertexIndices.length, @gl.UNSIGNED_SHORT, 0
+            @gl.drawArrays @gl.TRIANGLES, 0, 3
 
         React.DOM.canvas({})
 
-    uniform: (name, array) ->
-        @gl.uniformMatrix4fv @gl.getUniformLocation(@program, name), false, array
-
     componentDidMount: ->
         vertex_shader = "
-                        attribute vec3 normal, vertex;
-                        varying vec3 l;
-                        uniform mat4 n, m, p;
+                        attribute vec3 vertex;
                         void main() {
-                        gl_Position = p * m * vec4(vertex, 1);
-                        l = vec3(0.6, 0.6, 0.6)+
-                        vec3(0.5, 0.5, 0.75) *
-                        max(dot((n * vec4(normal, 1.0)).xyz, vec3(0.85, 0.8, 0.75)), 0.0);
+                            gl_Position = vec4(vertex, 1);
                         }
                         "
 
         fragment_shader = "
-                        varying mediump vec3 l;
                         void main() {
-                            gl_FragColor = vec4(l, 1.0);
+                            gl_FragColor = vec4(0, 1, 0, 1);
                         }
                         "
 
         canvas = document.querySelector 'canvas'
-
         @gl = canvas.getContext 'webgl'
 
         alert "cannot create webgl context" unless @gl
 
-        @gl.enable @gl.DEPTH_TEST
-        @gl.depthFunc @gl.LEQUAL
         @setupBuffers()
 
         @program = @createProgram vertex_shader, fragment_shader
@@ -70,13 +50,7 @@ window.WebGl = React.createClass
     setupBuffers: ->
         @vertex = @gl.createBuffer()
         @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
-        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(getVertices()), @gl.STATIC_DRAW
-        @normal = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @normal
-        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(getNormals()), @gl.STATIC_DRAW
-        @vertexIndices = getVertexIndices()
-        @gl.bindBuffer @gl.ELEMENT_ARRAY_BUFFER, @gl.createBuffer()
-        @gl.bufferData @gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(@vertexIndices), @gl.STATIC_DRAW
+        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(tetra.vertices), @gl.STATIC_DRAW
 
     createProgram: (vertex, fragment) ->
         p = @gl.createProgram()

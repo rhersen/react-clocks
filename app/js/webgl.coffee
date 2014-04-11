@@ -5,31 +5,41 @@ window.WebGl = React.createClass
 
             @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
             loc = @gl.getAttribLocation @program, 'vertex'
-            @gl.vertexAttribPointer loc, 3, @gl.FLOAT, false, 0, 0
+            @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
             @gl.enableVertexAttribArray loc
 
-            tetra.vertices[0] = Math.cos(Math.PI * (Date.now() % 12000) / 6000);
-            tetra.vertices[1] = Math.sin(Math.PI * (Date.now() % 12000) / 6000);
-            @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
-            @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(tetra.vertices), @gl.STATIC_DRAW
+            loc = @gl.getUniformLocation @program, 'angle'
 
-            @gl.drawArrays @gl.TRIANGLES, 0, 3
+            @gl.uniform1f loc, Math.PI * (Date.now() % 60000) / 30000
+            @gl.drawArrays @gl.TRIANGLES, 0, 6
+
+            @gl.uniform1f loc, Math.PI * (Date.now() % 3600000) / 1800000
+            @gl.drawArrays @gl.TRIANGLES, 0, 6
 
         React.DOM.canvas({})
 
     componentDidMount: ->
         vertex_shader = "
-                        attribute vec3 vertex;
-                        void main() {
-                            gl_Position = vec4(vertex, 1);
-                        }
-                        "
+
+attribute vec2 vertex;
+uniform float angle;
+
+void main() {
+    gl_Position = vec4(
+        vertex.x * cos(angle) + vertex.y * sin(angle),
+       -vertex.x * sin(angle) + vertex.y * cos(angle),
+        0,
+        1
+    );
+}
+"
 
         fragment_shader = "
-                        void main() {
-                            gl_FragColor = vec4(0, 1, 0, 1);
-                        }
-                        "
+
+void main() {
+    gl_FragColor = vec4(0, 1, 0, 1);
+}
+"
 
         canvas = document.querySelector 'canvas'
         @gl = canvas.getContext 'webgl'
@@ -39,18 +49,28 @@ window.WebGl = React.createClass
         @setupBuffers()
 
         @program = @createProgram vertex_shader, fragment_shader
-        @onWindowResize()
 
-        addEventListener 'resize', (=> @onWindowResize()), false
+        console.log canvas.clientWidth, canvas.clientHeight
+        console.log window.devicePixelRatio
 
-    onWindowResize: ->
-        canvas = document.querySelector 'canvas'
-        @gl.viewport 0, 0, @screenWidth = canvas.width = innerWidth, @screenHeight = canvas.height = innerHeight
+        canvas.width = canvas.clientWidth * window.devicePixelRatio
+        canvas.height = canvas.clientHeight * window.devicePixelRatio
+        @gl.viewport 0, 0, canvas.width, canvas.height
 
     setupBuffers: ->
+        w = 1/32
+        vertices = [
+            -w, 1
+            -w, -w
+            w, -w
+            -w, 1
+            w, 1
+            w, -w
+        ]
+
         @vertex = @gl.createBuffer()
         @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
-        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(tetra.vertices), @gl.STATIC_DRAW
+        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
 
     createProgram: (vertex, fragment) ->
         p = @gl.createProgram()

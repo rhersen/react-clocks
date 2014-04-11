@@ -1,14 +1,14 @@
 window.WebGl = React.createClass
     render: ->
-        if @program
-            @gl.useProgram @program
+        if @hand
+            @gl.useProgram @hand
 
             @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
-            loc = @gl.getAttribLocation @program, 'vertex'
+            loc = @gl.getAttribLocation @hand, 'vertex'
             @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
             @gl.enableVertexAttribArray loc
 
-            loc = @gl.getUniformLocation @program, 'angle'
+            loc = @gl.getUniformLocation @hand, 'angle'
 
             @gl.uniform1f loc, Math.PI * (Date.now() % 60000) / 30000
             @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
@@ -48,10 +48,7 @@ void main() {
 
         @setupBuffers()
 
-        @program = @createProgram vertex_shader, fragment_shader
-
-        console.log canvas.clientWidth, canvas.clientHeight
-        console.log window.devicePixelRatio
+        @hand = @createProgram vertex_shader, fragment_shader
 
         canvas.width = canvas.clientWidth * window.devicePixelRatio
         canvas.height = canvas.clientHeight * window.devicePixelRatio

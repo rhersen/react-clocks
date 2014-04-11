@@ -11,10 +11,10 @@ window.WebGl = React.createClass
             loc = @gl.getUniformLocation @program, 'angle'
 
             @gl.uniform1f loc, Math.PI * (Date.now() % 60000) / 30000
-            @gl.drawArrays @gl.TRIANGLES, 0, 6
+            @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
 
             @gl.uniform1f loc, Math.PI * (Date.now() % 3600000) / 1800000
-            @gl.drawArrays @gl.TRIANGLES, 0, 6
+            @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
 
         React.DOM.canvas({})
 
@@ -62,8 +62,6 @@ void main() {
         vertices = [
             -w, 1
             -w, -w
-            w, -w
-            -w, 1
             w, 1
             w, -w
         ]

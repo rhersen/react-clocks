@@ -3,8 +3,8 @@ window.WebGl = React.createClass
         if @hand
             @gl.useProgram @hand
 
-            @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
-            loc = @gl.getAttribLocation @hand, 'vertex'
+            @gl.bindBuffer @gl.ARRAY_BUFFER, @pos
+            loc = @gl.getAttribLocation @hand, 'pos'
             @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
             @gl.enableVertexAttribArray loc
 
@@ -19,28 +19,6 @@ window.WebGl = React.createClass
         React.DOM.canvas({})
 
     componentDidMount: ->
-        vertex_shader = "
-
-attribute vec2 vertex;
-uniform float angle;
-
-void main() {
-    gl_Position = vec4(
-        vertex.x * cos(angle) + vertex.y * sin(angle),
-       -vertex.x * sin(angle) + vertex.y * cos(angle),
-        0,
-        1
-    );
-}
-"
-
-        fragment_shader = "
-
-void main() {
-    gl_FragColor = vec4(0, 1, 0, 1);
-}
-"
-
         canvas = document.querySelector 'canvas'
         @gl = canvas.getContext 'webgl'
 
@@ -48,7 +26,24 @@ void main() {
 
         @setupBuffers()
 
-        @hand = @createProgram vertex_shader, fragment_shader
+        @hand = @createProgram(
+            "
+            attribute vec2 pos;
+            uniform float angle;
+
+            void main() {
+                gl_Position = vec4(
+                    pos.x * cos(angle) + pos.y * sin(angle),
+                   -pos.x * sin(angle) + pos.y * cos(angle),
+                    0,
+                    1
+                );
+            }",
+            "
+            void main() {
+                gl_FragColor = vec4(0, 1, 0, 1);
+            }"
+        )
 
         canvas.width = canvas.clientWidth * window.devicePixelRatio
         canvas.height = canvas.clientHeight * window.devicePixelRatio
@@ -63,8 +58,8 @@ void main() {
             w, -w
         ]
 
-        @vertex = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @vertex
+        @pos = @gl.createBuffer()
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @pos
         @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
 
     createProgram: (vertex, fragment) ->

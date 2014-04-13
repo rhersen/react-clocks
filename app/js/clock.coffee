@@ -1,12 +1,12 @@
 window.Clock = React.createClass({
    getAngle: (cycleTime) ->
-      return 360 * (this.getMillis() % cycleTime) / cycleTime
+      360 * (this.getMillis() % cycleTime) / cycleTime
 
    getMillis: ->
-      return this.props.millis - this.props.timezoneOffset * 60000
+      this.props.millis - this.props.timezoneOffset * 60000
 
    render: ->
-      return React.DOM.svg({
+      React.DOM.svg({
             viewBox: '-1.5 -1.5 3 3'
             width: '100'
             height: '100'

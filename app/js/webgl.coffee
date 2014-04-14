@@ -28,21 +28,21 @@ window.WebGl = React.createClass
 
     @hand = @createProgram(
       "
-                  attribute vec2 pos;
-                  uniform float angle;
+      attribute vec2 pos;
+      uniform float angle;
 
-                  void main() {
-                      gl_Position = vec4(
-                          pos.x * cos(angle) + pos.y * sin(angle),
-                         -pos.x * sin(angle) + pos.y * cos(angle),
-                          0,
-                          1
-                      );
-                  }",
+      void main() {
+          gl_Position = vec4(
+              pos.x * cos(angle) + pos.y * sin(angle),
+             -pos.x * sin(angle) + pos.y * cos(angle),
+              0,
+              1
+          );
+      }",
       "
-                  void main() {
-                      gl_FragColor = vec4(0, 1, 0, 1);
-                  }"
+      void main() {
+          gl_FragColor = vec4(0, 1, 0, 1);
+      }"
     )
 
     canvas.width = canvas.clientWidth * window.devicePixelRatio

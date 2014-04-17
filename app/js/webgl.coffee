@@ -1,20 +1,39 @@
+n = 128
+
 window.WebGl = React.createClass
   render: ->
+    if @face
+      @gl.useProgram @face
+
+      @gl.bindBuffer @gl.ARRAY_BUFFER, @facepos
+      loc = @gl.getAttribLocation @face, 'pos'
+      @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
+      @gl.enableVertexAttribArray loc
+
+      loc = @gl.getUniformLocation @face, 'angle'
+
+      @gl.drawArrays @gl.TRIANGLE_FAN, 0, n + 2
+
     if @hand
       @gl.useProgram @hand
 
-      @gl.bindBuffer @gl.ARRAY_BUFFER, @pos
+      @gl.bindBuffer @gl.ARRAY_BUFFER, @handpos
       loc = @gl.getAttribLocation @hand, 'pos'
       @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
       @gl.enableVertexAttribArray loc
 
       loc = @gl.getUniformLocation @hand, 'angle'
 
-      @gl.uniform1f loc, Math.PI * (Date.now() % 60000) / 30000
-      @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
+      getMillis = =>
+        @props.millis - @props.timezoneOffset * 60000
 
-      @gl.uniform1f loc, Math.PI * (Date.now() % 3600000) / 1800000
-      @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
+      drawHand = (cycleTime) =>
+        @gl.uniform1f loc, 2 * Math.PI * (getMillis() % cycleTime) / cycleTime
+        @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
+
+      drawHand(60000)
+      drawHand(60 * 60000)
+      drawHand(12 * 60 * 60000)
 
     React.DOM.canvas({})
 
@@ -41,7 +60,26 @@ window.WebGl = React.createClass
       }",
       "
       void main() {
-          gl_FragColor = vec4(0, 1, 0, 1);
+          gl_FragColor = vec4(0.18, 0.31, 0.31, 1);
+      }"
+    )
+
+    @face = @createProgram(
+      "
+      attribute vec2 pos;
+      uniform float angle;
+
+      void main() {
+          gl_Position = vec4(
+              pos.y * sin(pos.x),
+              pos.y * cos(pos.x),
+              0,
+              1
+          );
+      }",
+      "
+      void main() {
+        gl_FragColor = vec4(1, 1, 0.94, 1);
       }"
     )
 
@@ -50,17 +88,24 @@ window.WebGl = React.createClass
     @gl.viewport 0, 0, canvas.width, canvas.height
 
   setupBuffers: ->
-    w = 1 / 32
-    vertices = [
-      -w, 1
+    w = 0.025
+    hand = [
+      -w, 0.9
       -w, -w
-      w, 1
+      w, 0.9
       w, -w
     ]
 
-    @pos = @gl.createBuffer()
-    @gl.bindBuffer @gl.ARRAY_BUFFER, @pos
-    @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
+    @handpos = @gl.createBuffer()
+    @gl.bindBuffer @gl.ARRAY_BUFFER, @handpos
+    @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(hand), @gl.STATIC_DRAW
+
+    face = [-1..n].map((x) ->
+      if x < 0 then [0, 0] else [2 * Math.PI * x / n, 1])
+
+    @facepos = @gl.createBuffer()
+    @gl.bindBuffer @gl.ARRAY_BUFFER, @facepos
+    @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array([].concat.apply [], face), @gl.STATIC_DRAW
 
   createProgram: (vertex, fragment) ->
     p = @gl.createProgram()

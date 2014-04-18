@@ -7,7 +7,7 @@ window.Clock = React.createClass({
 
    render: ->
       React.DOM.svg({
-            viewBox: '-1.5 -1.5 3 3'
+            viewBox: '-1 -1 2 2'
             width: '480'
             height: '480'
          },

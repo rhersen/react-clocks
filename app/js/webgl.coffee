@@ -1,4 +1,4 @@
-n = 128
+n = 12
 
 window.WebGl = React.createClass
   render: ->
@@ -10,8 +10,6 @@ window.WebGl = React.createClass
       @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
       @gl.enableVertexAttribArray loc
 
-      loc = @gl.getUniformLocation @face, 'angle'
-
       @gl.drawArrays @gl.TRIANGLE_FAN, 0, n + 2
 
     if @hand
@@ -22,18 +20,17 @@ window.WebGl = React.createClass
       @gl.vertexAttribPointer loc, 2, @gl.FLOAT, false, 0, 0
       @gl.enableVertexAttribArray loc
 
-      loc = @gl.getUniformLocation @hand, 'angle'
+      drawHand = (t, width, length = 0.9) =>
+        loc = (name) => @gl.getUniformLocation(@hand, name)
+        getMillis = => @props.millis - @props.timezoneOffset * 60000
 
-      getMillis = =>
-        @props.millis - @props.timezoneOffset * 60000
-
-      drawHand = (cycleTime) =>
-        @gl.uniform1f loc, 2 * Math.PI * (getMillis() % cycleTime) / cycleTime
+        @gl.uniform1f loc('angle'), 2 * Math.PI * (getMillis() % t) / t
+        @gl.uniform2f loc('size'), width, length
         @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
 
-      drawHand(60000)
-      drawHand(60 * 60000)
-      drawHand(12 * 60 * 60000)
+      drawHand(60000, 0.01)
+      drawHand(60 * 60000, 0.05)
+      drawHand(12 * 60 * 60000, 0.1, 0.7)
 
     React.DOM.canvas({})
 
@@ -49,11 +46,14 @@ window.WebGl = React.createClass
       "
       attribute vec2 pos;
       uniform float angle;
+      uniform vec2 size;
 
       void main() {
+          float w = size.x / 2.;
+
           gl_Position = vec4(
-              pos.x * cos(angle) + pos.y * sin(angle),
-             -pos.x * sin(angle) + pos.y * cos(angle),
+              pos.x * w * cos(angle) + (pos.y - w) * size.y * sin(angle),
+             -pos.x * w * sin(angle) + (pos.y - w) * size.y * cos(angle),
               0,
               1
           );
@@ -67,7 +67,6 @@ window.WebGl = React.createClass
     @face = @createProgram(
       "
       attribute vec2 pos;
-      uniform float angle;
 
       void main() {
           gl_Position = vec4(
@@ -88,12 +87,11 @@ window.WebGl = React.createClass
     @gl.viewport 0, 0, canvas.width, canvas.height
 
   setupBuffers: ->
-    w = 0.025
     hand = [
-      -w, 0.9
-      -w, -w
-      w, 0.9
-      w, -w
+      -1, 1
+      -1, 0
+      1, 1
+      1, 0
     ]
 
     @handpos = @gl.createBuffer()

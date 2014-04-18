@@ -27,22 +27,24 @@ window.ReactRoot = React.createClass
 
   render: ->
     React.DOM.div({},
-      React.DOM.button
-        onClick: @tick
-        disabled: @state.request isnt 0
-        'start',
-      React.DOM.button
-        onClick: @stop
-        disabled: @state.request is 0
-        'stop',
-      React.DOM.button
-        onClick: @gmt
-        disabled: @state.timezoneOffset is 0
-        'gmt',
-      React.DOM.button
-        onClick: @local
-        disabled: @state.timezoneOffset isnt 0
-        'local'
+      React.DOM.div({},
+        React.DOM.button
+          onClick: @tick
+          disabled: @state.request isnt 0
+          'start',
+        React.DOM.button
+          onClick: @stop
+          disabled: @state.request is 0
+          'stop',
+        React.DOM.button
+          onClick: @gmt
+          disabled: @state.timezoneOffset is 0
+          'gmt',
+        React.DOM.button
+          onClick: @local
+          disabled: @state.timezoneOffset isnt 0
+          'local'
+      )
       Clock
         millis: @state.millis
         timezoneOffset: @state.timezoneOffset

@@ -15,6 +15,11 @@ window.ReactRoot = React.createClass
       millis: Date.now()
       request: requestAnimationFrame @tick
 
+  start: ->
+    @frameCount = 0
+    @startTimeMillis = new Date()
+    @tick()
+
   stop: ->
     cancelAnimationFrame @state.request
     @setState request: 0
@@ -25,30 +30,49 @@ window.ReactRoot = React.createClass
   local: ->
     @setState timezoneOffset: new Date().getTimezoneOffset()
 
+  frameCount: 0
+
+  startTimeMillis: new Date()
+
+  frameCounter: ->
+    @frameCount = @frameCount + 1
+    @elapsedMillis = new Date() - @startTimeMillis
+
   render: ->
     React.DOM.div({},
       React.DOM.div({},
         React.DOM.button
-          onClick: @tick
+          onClick: @start
           disabled: @state.request isnt 0
-          'start',
+          'start'
         React.DOM.button
           onClick: @stop
           disabled: @state.request is 0
-          'stop',
+          'stop'
         React.DOM.button
           onClick: @gmt
           disabled: @state.timezoneOffset is 0
-          'gmt',
+          'gmt'
         React.DOM.button
           onClick: @local
           disabled: @state.timezoneOffset isnt 0
           'local'
+        React.DOM.input
+          onChange: => @setState svg: event.target.checked
+          type: 'checkbox'
+          'SVG'
+        React.DOM.span
+          className: 'fps'
+          @frameCount / @elapsedMillis * 1e3
       )
-      Clock
-        millis: @state.millis
-        timezoneOffset: @state.timezoneOffset
-      WebGl
-        millis: @state.millis
-        timezoneOffset: @state.timezoneOffset
+      if @state.svg
+        Clock
+          millis: @state.millis
+          timezoneOffset: @state.timezoneOffset
+          frameCounter: @frameCounter
+      else
+        WebGl
+          millis: @state.millis
+          timezoneOffset: @state.timezoneOffset
+          frameCounter: @frameCounter
     )

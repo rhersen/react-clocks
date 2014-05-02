@@ -5,7 +5,7 @@ window.ReactRoot = React.createClass
     request: 0
 
   componentDidMount: ->
-    @setState request: setInterval @tick, 1
+    @setState request: requestAnimationFrame @tick
 
   componentWillUnmount: ->
     @stop()
@@ -13,14 +13,15 @@ window.ReactRoot = React.createClass
   tick: ->
     @setState
       millis: Date.now()
+      request: requestAnimationFrame @tick
 
   start: ->
     @frameCount = 0
     @startTimeMillis = new Date()
-    @setState request: setInterval @tick, 1
+    @tick()
 
   stop: ->
-    clearInterval @state.request
+    cancelAnimationFrame @state.request
     @setState request: 0
 
   gmt: ->

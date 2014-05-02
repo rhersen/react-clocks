@@ -1,21 +1,15 @@
-window.getVertices = ->
-    lbf = [-1, -1, 1]
-    rbf = [1, -1, 1]
-    rtf = [1, 1, 1]
-    ltf = [-1, 1, 1]
-    lbb = [-1, -1, -1]
-    rbb = [1, -1, -1]
-    rtb = [1, 1, -1]
-    ltb = [-1, 1, -1]
-
-    [].concat(
-        lbf, rbf, rtf, ltf,
-        lbb, ltb, rtb, rbb,
-        ltb, ltf, rtf, rtb,
-        lbb, rbb, rbf, lbf,
-        rbb, rtb, rtf, rbf,
-        lbb, lbf, ltf, ltb
-    )
+window.getVertices = (n) ->
+  [0...(n * n * 9)].map((i) ->
+      if i % 3 is 2
+        2 * Math.PI * (i - 2) / 3 / 3
+      else if i % 3 is 1
+        j = (i - 1) / 3
+        (j - j % (n * 3)) / (n * 3)
+      else
+        j = i / 3
+        k = j % (n * 3)
+        (k - k % 3) / 3
+  )
 
 window.getVertexIndices = ->
     faces = [ 0, 1, 2, 0, 2, 3 ]

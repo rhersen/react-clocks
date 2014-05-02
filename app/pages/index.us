@@ -12,10 +12,7 @@
     <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', function () {
         reactRoot = ReactRoot();
-        React.renderComponent(
-                reactRoot,
-                document.getElementById('mountpoint')
-        );
+        React.renderComponent(reactRoot, document.getElementById('mountpoint'));
       });
     </script>
   </body>

@@ -30,8 +30,6 @@ window.WebGl = React.createClass
       drawHand 60 * 60000, 0.05
       drawHand 12 * 60 * 60000, 0.1, 0.7
 
-    @props.frameCounter()
-
     React.DOM.canvas({})
 
   componentDidMount: ->

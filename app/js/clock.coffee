@@ -6,8 +6,6 @@ window.Clock = React.createClass({
       this.props.millis - this.props.timezoneOffset * 60000
 
    render: ->
-      @props.frameCounter()
-
       React.DOM.svg({
             viewBox: '-1 -1 2 2'
             width: '480'

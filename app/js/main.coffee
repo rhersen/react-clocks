@@ -1,3 +1,5 @@
+tag = React.DOM
+
 window.ReactRoot = React.createClass
   getInitialState: ->
     millis: Date.now(),
@@ -30,49 +32,43 @@ window.ReactRoot = React.createClass
   local: ->
     @setState timezoneOffset: new Date().getTimezoneOffset()
 
-  frameCount: 0
-
-  startTimeMillis: new Date()
-
-  frameCounter: ->
-    @frameCount = @frameCount + 1
-    @elapsedMillis = new Date() - @startTimeMillis
-
   render: ->
-    React.DOM.div({},
-      React.DOM.div({},
-        React.DOM.button
+    tag.div {},
+      tag.div {},
+        tag.button
           onClick: @start
           disabled: @state.request isnt 0
           'start'
-        React.DOM.button
+        tag.button
           onClick: @stop
           disabled: @state.request is 0
           'stop'
-        React.DOM.button
+        tag.button
           onClick: @gmt
           disabled: @state.timezoneOffset is 0
           'gmt'
-        React.DOM.button
+        tag.button
           onClick: @local
           disabled: @state.timezoneOffset isnt 0
           'local'
-        React.DOM.input
-          onChange: => @setState svg: event.target.checked
-          type: 'checkbox'
-          'SVG'
-        React.DOM.span
-          className: 'fps'
-          @frameCount / @elapsedMillis * 1e3
-      )
+        tag.label {},
+          tag.input
+            onChange: (event) => @setState svg: event.target.checked
+            type: 'checkbox'
+          tag.span {},
+            'SVG'
+        tag.label {},
+          tag.input
+            onChange: (event) => @setState gl: event.target.checked
+            type: 'checkbox'
+          tag.span {},
+            'WebGL'
       if @state.svg
         Clock
           millis: @state.millis
           timezoneOffset: @state.timezoneOffset
-          frameCounter: @frameCounter
-      else
-        WebGl
-          millis: @state.millis
-          timezoneOffset: @state.timezoneOffset
-          frameCounter: @frameCounter
-    )
+      if @state.gl
+        tag.div {className: 'drawing-area'},
+          WebGl
+            millis: @state.millis
+            timezoneOffset: @state.timezoneOffset

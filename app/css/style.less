@@ -1,21 +1,33 @@
 
 body {
-    background-color: darkslategray;
+  background-color: darkslategray;
 }
 
 #err {
-    display: none;
+  display: none;
 }
 
 body.invalid #err {
-    display: inline;
+  display: inline;
+}
+
+.drawing-area {
+  width: 480px;
+  height: 480px;
+  background-color: green
 }
 
 canvas {
-    width: 480px;
-    height: 480px;
+  width: 100%;
+  height: 100%;
+//  background-color: green
 }
 
-.fps {
-    color: ivory;
+svg {
+  background-color: green
+}
+
+label span {
+  color: ivory;
+  font-family: Helvetica Neue, Helvetica, Arial;
 }
